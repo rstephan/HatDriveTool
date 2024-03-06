@@ -137,7 +137,7 @@ def main():
         print(USAGE)
         sys.exit(1)
 
-    print([opts, args])
+    #print([opts, args])
     for o, a in opts:
         if o in ("-v", "--version"):
             print(VERSION)
