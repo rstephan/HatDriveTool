@@ -22,7 +22,7 @@ $ source bin/activate
 Afterwards you can install the dependencies for the python modules.
 
 ```
-$ sudo apt-get install python3-dev libgpiod-dev
+$ sudo apt-get install python3-dev libgpiod-dev i2c-tools
 ```
 
 And finally the module itself.
@@ -33,6 +33,8 @@ $ pip install adafruit-python-shell
 $ pip install click
 $ pip install setuptools
 $ pip install gpiod
+$ pip install board
+$ pip install adafruit-circuitpython-24lc32
 ```
 
 ## Usage
@@ -44,6 +46,7 @@ $ ./hatdrivetool.py meter
 ## Debugging
 
 ```
-$ i2cdetect -y 1
+$ i2cdetect -y 1 # Bottom
+$ i2cdetect -y 0 # Top
 ```
 You should see the `40` and `50` device.
