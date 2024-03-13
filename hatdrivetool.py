@@ -3,6 +3,7 @@
 import getopt
 import sys
 import board
+import busio
 import adafruit_24lc32
 from ina219 import INA219, DeviceRangeError
 import time
@@ -44,8 +45,8 @@ class HdtMeter:
     mWithPower = False
     mIna = None
 
-    def Init(self):
-        ina = INA219(SHUNT, MAX_CURRENT, busnum=1)
+    def Init(self, bus):
+        ina = INA219(SHUNT, MAX_CURRENT, busnum=bus)
         ina.configure(ina.RANGE_16V, ina.GAIN_1_40MV)
         self.mIna = ina
 
@@ -82,9 +83,12 @@ class HdtMeter:
             print("??")
 
 
-def HdtReadMeter(delay, mode, power):
+def HdtReadMeter(delay, mode, power, type):
+    bus = 0
+    if type == "bottom" or type == "ws":
+        bus = 1
     meter = HdtMeter()
-    meter.Init()
+    meter.Init(bus)
     meter.mWithPower = power
     if mode == 3:
         print("\"HatDriveTool\",\"Meter\"")
@@ -115,9 +119,19 @@ def HexDump(data):
     print()
 
 
-def HdtEeprom():
-    i2c = board.I2C()  # uses board.SCL and board.SDA
-    eeprom = adafruit_24lc32.EEPROM_I2C(i2c)
+def HdtEeprom(type):
+    addr = 0x50
+    if type == "top":
+        i2c = busio.I2C(board.D1, board.D0)
+    elif type == "bottom":
+        i2c = board.I2C()
+    elif type == "ws":
+        i2c = busio.I2C(board.D1, board.D0)
+        addr = 0x51
+    else:
+        print("Unknown type!")
+        return
+    eeprom = adafruit_24lc32.EEPROM_I2C(i2c, address=addr)
 
     print("Size: {}".format(len(eeprom)))
     HexDump(eeprom[:])
@@ -129,10 +143,11 @@ def main():
     quiet = False
     withPower = False
     filename = ""
+    type = "top"
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hl:Dd:m:qpv",
-            ["help", "version", "file=", "debug", "mode=", "delay", "quiet", "power"])
+        opts, args = getopt.getopt(sys.argv[1:], "hl:Dd:m:t:qpv",
+            ["help", "version", "file=", "debug", "mode=", "delay", "quiet", "power", "type="])
     except getopt.GetoptError as err:
         print(USAGE)
         sys.exit(1)
@@ -155,15 +170,21 @@ def main():
             withPower = True
         if o in ("-f", "--file"):
             filename = a
+        if o in ("-t", "--type"):
+            if a == "top" or a == "bottom" or a == "ws":
+                type = a
+            else:
+                print("Unknown type: {}", a)
+                sys.exit(1)
 
     if not quiet:
         print("HatDrive! Tool")
 
     if len(args) == 1:
         if args[0] == "meter":
-            HdtReadMeter(delay, mode, withPower)
+            HdtReadMeter(delay, mode, withPower, type)
         elif args[0] == "eeprom":
-            HdtEeprom()
+            HdtEeprom(type)
         else:
             print("Unknown command {}".format(args[0]))
 
