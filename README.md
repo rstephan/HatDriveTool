@@ -43,6 +43,12 @@ $ pip install adafruit-circuitpython-24lc32
 $ ./hatdrivetool.py meter
 ```
 
+### Supported HATs
+
+* HatDrive! Top
+* HatDrive! Button (with modifications!!)
+* Waveshare PCIe TO M.2 HAT+
+
 ## Debugging
 
 ```

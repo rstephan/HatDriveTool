@@ -21,6 +21,10 @@ hatdrive.py <options> meter|eeprom
 
   -h, --help      Show help
   -v, --version   Show version
+  -t, --type <t>  Type of HAT
+                  top       HatDrive! Top (default)
+                  bottom    HatDrive! Bottom
+                  ws        Waveshare PCIe TO M.2 HAT+
   -m, --mode <m>  Set output mode
                   0: line-by-line
                   1: single line
